@@ -7,7 +7,7 @@ import bzh.motot.fred.pathfinding.MatrixMap;
 import bzh.motot.fred.pathfinding.Vertex;
 
 public class Submarine {
-	public static final int[][] AUTHORIZED_TARGET = { { 2, -2 }, { 2, -1 }, { 2, 0 }, { 2, 1 }, { 2, 2 },
+	private static final int[][] AUTHORIZED_TARGET = { { 2, -2 }, { 2, -1 }, { 2, 0 }, { 2, 1 }, { 2, 2 },
 
 			{ -2, -2 }, { -2, -1 }, { -2, 0 }, { -2, 1 }, { -2, 2 },
 
@@ -63,8 +63,6 @@ public class Submarine {
 		// on vérifie si les points de vie ont été modifiés suite à un tir de torpille,
 		// une explosion de mine
 
-		System.err.println(this.oppOrders);
-		System.err.println(opponentOrders);
 		// TODO tester s'il faut mettre this.oppOrders ou oppOrders
 		this.enemyDetector.setPositionFromExplosion(this.myOrders, opponentOrders, this.oppLife, oppLife);
 
@@ -93,10 +91,17 @@ public class Submarine {
 		return action;
 	}
 
+	/**
+	 * Sélectionne une coordonnée parmi la la liste des emplacements potentiels de l'ennemi à portée
+	 * @param x		Coordonnées x du sous-marin
+	 * @param y		Coordonnées y du sous-marin
+	 * @param enemyPositions	Coordonnées potentielles du sous-marin ennemi
+	 * @return		Coordonnées de la cible du tir
+	 */
 	private Vertex launchTorpedoFrom(int x, int y, ArrayList<Vertex> enemyPositions) {
 		ArrayList<Vertex> potentialTargets = new ArrayList<Vertex>();
 		ArrayList<Vertex> listTargets = new ArrayList<Vertex>();
-
+		
 		for (int target = 0; target < AUTHORIZED_TARGET.length; target++) {
 			// si le path entre x/y et la cible < 6 alors c'est un cible potentiel
 			int x2 = x + AUTHORIZED_TARGET[target][0];
@@ -114,13 +119,15 @@ public class Submarine {
 		}
 
 		// tir ciblé
-		System.err.println(potentialTargets);
+//		System.err.println("liste des emplacements potentiels :");
+//		System.err.println(potentialTargets);
 		for (Vertex vertex : potentialTargets) {
 			if (enemyPositions.contains(vertex)) {
 				listTargets.add(vertex);
 			}
 		}
 		Vertex coord = listTargets.size() != 0 ? listTargets.get(random.nextInt(listTargets.size())) : null;
+		System.err.println("liste des emplacements potentiels à portée :");
 		System.err.println(listTargets);
 
 		return coord;
@@ -152,16 +159,31 @@ public class Submarine {
 			}
 			return "MOVE " + direction + " TORPEDO";
 		} else {
-			path = map.findLongestPath(position);
+			path = map.pathFindingLongest(position);
 			path.remove(path.size() - 1);
 			map.clearVertex();
 			return "SURFACE";
 		}
 
 	}
+	
+	
+	/**
+	 * TEST
+	 * permet de remplacer le path déjà calculé pour forcer le cheminement
+	 * @param path
+	 */
+	public void setPath(ArrayList<Vertex> path) {
+		this.path = path;
+	}
 
+	/**
+	 * retour la chaine de caractère des coordonnées de départ
+	 * @return
+	 */
 	public String firstCoord() {
-
+//		System.err.print("cheminement calculé : ");
+//		System.err.println(path);
 		return this.path.remove(path.size() - 1).toString();
 	}
 }

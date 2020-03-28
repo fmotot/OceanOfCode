@@ -107,19 +107,18 @@ public class Detector {
 			// si le path entre x/y et la cible < 6 alors c'est un cible potentiel
 			int x2 = x + TORPEDO_FROM[target][0];
 			int y2 = y + TORPEDO_FROM[target][1];
-			if (x2 >= 0 && x2 < 15) {
-				if (y2 >= 0 && y2 < 15) {
-					ArrayList<Vertex> path = map.pathFinding(x, y, x2, y2);
-					if (path != null) {
-						if (path.size() < 6) {
+			if (x2 >= 0 && x2 < 15 && y2 >= 0 && y2 < 15) {
+				ArrayList<Vertex> path = map.pathFinding(x, y, x2, y2);
+				if (path != null) {
+					if (path.size() < 6) {
 
-							int[] coord = path.get(0).getCoord();
-							if (enemyPositionsMap[coord[0]][coord[1]] == ENEMY) {
-								enemyPositions.add(coord);
-							}
+						int[] coord = path.get(0).getCoord();
+						if (enemyPositionsMap[coord[0]][coord[1]] == ENEMY) {
+							enemyPositions.add(coord);
 						}
 					}
 				}
+
 			}
 		}
 
@@ -142,9 +141,13 @@ public class Detector {
 	}
 
 	private void excludePositionsToMap(ArrayList<int[]> positions) {
+		
 		for (int[] coord : positions) {
+			System.err.print(coord[0] + " " + coord[1] + ", ");
 			enemyPositionsMap[coord[0]][coord[1]] = WATER;
+			System.err.print(enemyPositionsMap[coord[0]][coord[1]]);
 		}
+		System.err.println();
 
 		for (int y = 0; y < enemyPositionsMap.length; y++) {
 			for (int x = 0; x < enemyPositionsMap[0].length; x++) {
@@ -170,6 +173,14 @@ public class Detector {
 					c = '●';
 				}
 				System.err.print(c);
+			}
+			System.err.println();
+		}
+		
+		// affiche la liste des positions ennemies potentiels si moins de 50
+		if (enemyPositions.size() < 50) {
+			for (int[] e : enemyPositions) {
+				System.err.print(e[0] + " " + e[1] + ", ");
 			}
 			System.err.println();
 		}
@@ -249,24 +260,29 @@ public class Detector {
 
 		oppTorpedo = this.getActionType("TORPEDO", oppActions);
 		myTorpedo = this.getActionType("TORPEDO", myActions);
-		
-//		System.err.println(oppTorpedo);
-//		System.err.println(myTorpedo);
 
 		if (oppTorpedo != null ^ myTorpedo != null) {
+			
 			String[] torpedo = oppTorpedo != null ? oppTorpedo : myTorpedo;
 			int x = Integer.parseInt(torpedo[1]);
 			int y = Integer.parseInt(torpedo[2]);
-			
+
 			if (oppLife < oppLifePrevious) {
-				
-			}
-			else {
-				ArrayList<int[]> positions = new ArrayList<int[]>(); 
+
+			} else {
+				ArrayList<int[]> positions = new ArrayList<int[]>();
+				int coordX;
+				int coordY;
 				for (int[] coord : EXPLOSION_FROM) {
-					positions.add(new int[] { x + coord[0], y + coord[1] });
+					coordX = x + coord[0];
+					coordY = y + coord[1];
+					if (coordX >= 0 && coordX < 15 && coordY >= 0 && coordY < 15) {
+						System.err.print(coordX + " " + coordY + ", ");
+						positions.add(new int[] { coordX, coordY });
+					}
 				}
-				
+				System.err.println();
+
 				this.excludePositionsToMap(positions);
 			}
 		}

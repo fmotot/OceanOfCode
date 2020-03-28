@@ -12,7 +12,7 @@ public class MatrixMap {
 	private Vertex[][] mappy = new Vertex[15][15];
 
 	/**
-	 * 
+	 *  Constructor
 	 */
 	public MatrixMap() {
 		map = new HashMap<Vertex, Object>();
@@ -29,8 +29,6 @@ public class MatrixMap {
 
 		for (int x = 0; x < line.length(); x++) {
 			if (lineMap[x] == '.') {
-
-//				mappy[x][y] = new Vertex(new Cell(x, y));
 				mappy[x][y] = new Vertex(x, y);
 
 				if (x > 0) {
@@ -38,9 +36,7 @@ public class MatrixMap {
 						this.addEdge(mappy[x - 1][y], mappy[x][y]);
 					}
 				}
-
 				if (y > 0) {
-
 					if (mappy[x][y - 1] != null) {
 						this.addEdge(mappy[x][y], mappy[x][y - 1]);
 					}
@@ -69,65 +65,18 @@ public class MatrixMap {
 		}
 	}
 
-	/**
-	 * Add a vertex "o" to the map if does'nt already exist Ajoute un sommet "o" à
-	 * la carte s'il n'existe déjà
-	 * 
-	 * @param num the vertex object / l'objet du sommet
-	 * @return l'objet fourni
-	 */
-//	public Vertex addVertex(Object o) {
-//		Vertex v = this.getVertex(o);
-//		if (v == null) {
-//			v = new Vertex(o);
-//			addVertex(v);
-//		}
-//
-//		return v;
-//	}
 
 	public Vertex addVertex(Vertex v) {
 		map.put(v, new HashMap<Vertex, Object>());
 		return v;
 	}
 
-	/**
-	 * Renvoie le vertex contenant l'objet o sinon null
-	 * 
-	 * @param o
-	 * @return Vertex
-	 */
-	public Vertex getVertex(Object o) {
-		Vertex v = null;
-		for (Map.Entry<Vertex, Object> entry : this.map.entrySet()) {
-			if (entry.getKey().getObject() == o) {
-				v = entry.getKey();
-			}
-		}
-
-		return v;
-	}
 	
 	public Vertex getVertex(int x, int y) {
 		return mappy[x][y];
 		
 	}
 
-	/**
-	 * Add a edge weighted to vertex "num2" (which is created if does'nt already
-	 * exist) Ajoute un sommet "o" à la carte avec une arête pondérée vers le sommet
-	 * "num2" (qui est créé s'il n'existe déjà)
-	 * 
-	 * @param o      the vertex object / l'objet du sommet
-	 * @param o2     the second vertex / le second sommet
-	 * @param weight the edge's weight / le poids de l'arête
-	 */
-//	public void addEdge(Object o, Object o2, int weight) {
-//		Vertex v2 = this.addVertex(o2);
-//		Vertex v = this.addVertex(o);
-//
-//		this.addEdge(v, v2, weight);
-//	}
 
 	public void addEdge(Vertex v, Vertex v2, int weight) {
 
@@ -135,17 +84,6 @@ public class MatrixMap {
 		((HashMap) map.get(v2)).put(v, weight);
 	}
 
-	/**
-	 * Add a edge from vertex "o" to vertex "o2" (which are created if don't already
-	 * exist) Ajoute une arête du sommet "o" vers le sommet "o2" (qui sont créés
-	 * s'ils n'existent déjà)
-	 * 
-	 * @param o  the vertex object / l'objet du sommet
-	 * @param o2 the second vertex / le second sommet
-	 */
-//	public void addEdge(Object o, Object o2) {
-//		this.addEdge(o, o2, 1);
-//	}
 
 	public void addEdge(Vertex v, Vertex v2) {
 		if (!this.map.containsKey(v))
@@ -153,16 +91,6 @@ public class MatrixMap {
 		if (!this.map.containsKey(v2))
 			this.addVertex(v2);
 		this.addEdge(v, v2, 1);
-	}
-
-	/**
-	 * Renvoie la liste des sommets liés à l'objet "o"
-	 * 
-	 * @param o
-	 * @return la liste des objets liés
-	 */
-	public ArrayList getLinkedVertex(Object o) {
-		return this.getLinkedVertex(this.getVertex(o));
 	}
 
 	/**
@@ -179,18 +107,6 @@ public class MatrixMap {
 		}
 
 		return list;
-	}
-
-	/**
-	 * retourne le poids de l'arête entre les 2 objets ou null si les objets ne sont
-	 * pas lié
-	 * 
-	 * @param o
-	 * @param o2
-	 * @return
-	 */
-	public Object getWeight(Object o, Object o2) {
-		return this.getWeight(this.getVertex(o), this.getVertex(o2));
 	}
 
 	/**
@@ -216,7 +132,7 @@ public class MatrixMap {
 
 		for (Map.Entry<Vertex, Object> entry : map.entrySet()) {
 
-			path = this.findLongestPath(entry.getKey());
+			path = this.pathFindingLongest(entry.getKey());
 			this.clearVertex();
 
 			longestPath = longestPath.size() > path.size() ? longestPath : path;
@@ -230,7 +146,7 @@ public class MatrixMap {
 	 */
 	public void clearVertex() {
 		for (Map.Entry<Vertex, Object> entry : map.entrySet()) {
-			entry.getKey().clearVisited();
+			entry.getKey().setPathVisited(false);
 		}
 	}
 	
@@ -249,12 +165,12 @@ public class MatrixMap {
 	 * @param v le Vertex de départ
 	 * @return ArrayList<Vertex> un chemin des plus longs
 	 */
-	public ArrayList<Vertex> findLongestPath(Vertex v) {
+	public ArrayList<Vertex> pathFindingLongest(Vertex v) {
 		ArrayList<Vertex> path = new ArrayList<Vertex>();
-		v.setVisited();
+		v.setPathVisited(true);
 		for (Vertex vertex : this.getLinkedVertex(v)) {
-			if (!vertex.isVisited()) {
-				ArrayList<Vertex> newPath = findLongestPath(vertex);
+			if (!vertex.isPathVisited()) {
+				ArrayList<Vertex> newPath = pathFindingLongest(vertex);
 
 				if (newPath.size() > path.size() - 1) {
 					path = newPath;
@@ -293,16 +209,17 @@ public class MatrixMap {
 		ArrayList<Vertex> queue = new ArrayList<Vertex>();
 		ArrayList<Vertex> path = new ArrayList<Vertex>();
 		Vertex goal = null;
-		v1.setVisited();
+		
+		v1.setPathVisited(true);
 
 		queue.add(v1);
-
+		
 		while (queue.size() > 0 && goal == null) {
 			Vertex vertex = queue.remove(0);
 			if (vertex != v2) {
 				for (Vertex v : this.getLinkedVertex(vertex)) {
-					if (!v.isVisited()) {
-						v.setVisited();
+					if (!v.isPathVisited()) {
+						v.setPathVisited(true);
 						v.setParent(vertex);
 						queue.add(v);
 					}
@@ -332,10 +249,10 @@ public class MatrixMap {
 	public ArrayList<ArrayList<Vertex>> getAllPaths(Vertex v) {
 		ArrayList<ArrayList<Vertex>> newPath = new ArrayList<ArrayList<Vertex>>();
 
-		v.setVisited();
+		v.setPathVisited(true);
 
 		for (Vertex vertex : this.getLinkedVertex(v)) {
-			if (!vertex.isVisited()) {
+			if (!vertex.isPathVisited()) {
 
 				for (ArrayList<Vertex> list : getAllPaths(vertex)) {
 					newPath.add(list);

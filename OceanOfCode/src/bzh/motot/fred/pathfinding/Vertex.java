@@ -6,21 +6,17 @@ public class Vertex {
 
 	private final int X;
 	private final int Y;
-	private ArrayList<Vertex> listVertex;
 	
 	
-	private Object o;
+	private static ArrayList<Vertex> listVertex;
+	
+	
+	private boolean isMine = false;
+	private boolean isEnemy = true;
 	private boolean isVisited = false;
+	private boolean isPathVisited = false;
 	private Vertex parent = null;
 	
-	
-	
-	
-	
-//	public Vertex(Object o){
-//		this.o = o;
-//		X=Y=0;
-//	}
 	
 	/**
 	 * les coordonnées du Vertex dans la carte
@@ -32,30 +28,24 @@ public class Vertex {
 		this.Y = y;
 	}
 	
-	public Object getObject() {
-		return this.o;
+	
+	/*
+	 * Pour les besoins en Pathfinding
+	 * 
+	 */
+	
+	
+	public boolean isPathVisited() {
+		return this.isPathVisited;
 	}
 	
-	public boolean isVisited() {
-//		System.err.print(o);
-//		System.err.print(" visited : ");
-//		System.err.println(this.isVisited);
-		return this.isVisited;
+	public void setPathVisited(boolean isPathVisited) {
+		this.isPathVisited = isPathVisited;
 	}
 	
-	public void setVisited() {
-		this.isVisited = true;
-//		System.err.print(o);
-//		System.err.println(" visited !");
-	}
-	
-	public void clearVisited() {
-//		System.err.print(o);
-//		System.err.print(" cleared!\nVisited : ");
-		
-		this.isVisited = false;
-//		System.err.println(this.isVisited);
-	}
+//	public void clearPathVisited() {
+//		this.isVisited = false;
+//	}
 	
 	public void setParent(Vertex v) {
 		this.parent = v;
@@ -68,6 +58,63 @@ public class Vertex {
 	public Vertex getParent() {
 		return this.parent;
 	}
+	
+	/*
+	 * Pour savoir si une mine est présente
+	 * nécessiter de savoir si une mine a pu être poser plusieurs fois ici pour connaitre l'éventuel emplacement des autres après explosion ?
+	 * 
+	 */
+	
+	
+	public boolean isMine() {
+		return isMine;
+	}
+
+
+	public void setMine(boolean isMine) {
+		this.isMine = isMine;
+	}
+
+
+	/*
+	 * Pour connaitre la présence ennemie
+	 * 
+	 */
+	
+	
+	public boolean isEnemy() {
+		return isEnemy;
+	}
+
+
+	public void setEnemy(boolean isEnemy) {
+		this.isEnemy = isEnemy;
+	}
+	
+	/*
+	 * Pour savoir si on peut retourner sur la case
+	 * 
+	 */
+	
+	
+	public boolean isVisited() {
+		return this.isVisited;
+	}
+	
+	public void setVisited(boolean isVisited) {
+		this.isVisited = isVisited;
+	}
+//	
+//	public void clearVisited() {
+//		this.isVisited = false;
+//	}
+	
+	
+	/*
+	 * Récupérer les coordonnées d'un vertex 
+	 * 
+	 */
+	
 	
 	public String toString(){
         return this.X + " " + this.Y;   
