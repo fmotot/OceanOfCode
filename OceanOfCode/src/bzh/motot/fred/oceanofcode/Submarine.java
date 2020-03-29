@@ -38,6 +38,8 @@ public class Submarine {
 	public Submarine(MatrixMap map) {
 		this.map = map;
 		this.path = map.getLongestPath();
+		System.err.println("longueur du chemin trouvé : " + path.size());
+		System.err.println(path);
 		this.enemyDetector = new Detector(this.map);
 		this.myLife = 6;
 		this.oppLife = 6;
@@ -59,16 +61,29 @@ public class Submarine {
 	 */
 	public String nextAction(int x, int y, int myLife, int oppLife, int torpedoCooldown, int sonarCooldown,
 			int silenceCooldown, int mineCooldown, String sonarResult, String opponentOrders) {
-
+		// System.err.println("x : " + x);
+        // System.err.println("y : " + y);
+        System.err.println("myLife : " + myLife);
+        System.err.println("oppLife : " + oppLife);
+        // System.err.println("torpedoCooldown : " + torpedoCooldown);
+        // System.err.println("sonarCooldown : " + sonarCooldown);
+        // System.err.println("silenceCooldown : " + silenceCooldown);
+        // System.err.println("mineCooldown : " + mineCooldown);
+        System.err.println("Opponent order : " + opponentOrders);
+        
 		// on vérifie si les points de vie ont été modifiés suite à un tir de torpille,
 		// une explosion de mine
 
-		// TODO tester s'il faut mettre this.oppOrders ou oppOrders
-		this.enemyDetector.setPositionFromExplosion(this.myOrders, opponentOrders, this.oppLife, oppLife);
+		
 
 		// on modifie les positions potentiels de l'ennemi en fonction des ordres qu'il
 		// a donnés
 		enemyDetector.setEnemyAction(opponentOrders);
+		System.err.println("ordres pris en compte");
+		
+		// TODO tester s'il faut mettre this.oppOrders ou oppOrders
+		this.enemyDetector.setPositionFromExplosion(this.myOrders, opponentOrders, this.oppLife, oppLife);
+		System.err.println("explosion prise en compte");
 
 		String action = "";
 
