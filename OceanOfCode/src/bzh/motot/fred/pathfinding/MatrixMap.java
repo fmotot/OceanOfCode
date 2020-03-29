@@ -8,14 +8,20 @@ import java.util.Map;
 import bzh.motot.fred.oceanofcode.*;
 
 public class MatrixMap {
-	private Map<Vertex, Object> map;
-	private Vertex[][] mappy = new Vertex[15][15];
+	public static final int[] NORTH = { 0, -1 };
+	public static final int[] SOUTH = { 0, 1 };
+	public static final int[] EAST = { 1, 0 };
+	public static final int[] WEST = { -1, 0 };
+	public static final int[][] DIRECTIONS = { NORTH, SOUTH, EAST, WEST };
+
+//	private Map<Vertex, Object> map;
+	private static final Vertex[][] MAPPY = new Vertex[15][15];
 
 	/**
-	 *  Constructor
+	 * Constructor
 	 */
 	public MatrixMap() {
-		map = new HashMap<Vertex, Object>();
+//		map = new HashMap<Vertex, Object>();
 	}
 
 	/**
@@ -29,28 +35,28 @@ public class MatrixMap {
 
 		for (int x = 0; x < line.length(); x++) {
 			if (lineMap[x] == '.') {
-				mappy[x][y] = new Vertex(x, y);
+				MAPPY[x][y] = new Vertex(x, y);
 
-				if (x > 0) {
-					if (lineMap[x - 1] == '.') {
-						this.addEdge(mappy[x - 1][y], mappy[x][y]);
-					}
-				}
-				if (y > 0) {
-					if (mappy[x][y - 1] != null) {
-						this.addEdge(mappy[x][y], mappy[x][y - 1]);
-					}
-				}
+//				if (x > 0) {
+//					if (lineMap[x - 1] == '.') {
+//						this.addEdge(mappy[x - 1][y], mappy[x][y]);
+//					}
+//				}
+//				if (y > 0) {
+//					if (mappy[x][y - 1] != null) {
+//						this.addEdge(mappy[x][y], mappy[x][y - 1]);
+//					}
+//				}
 			}
 		}
 	}
 
 	public void showMappy() {
-		for (int i = 0; i < mappy.length; i++) {
-			for (int j = 0; j < mappy[0].length; j++) {
-				if (mappy[j][i] != null) {
-					System.out.println(mappy[j][i]);
-					System.out.println(this.getLinkedVertex(mappy[j][i]));
+		for (int i = 0; i < MAPPY.length; i++) {
+			for (int j = 0; j < MAPPY[0].length; j++) {
+				if (MAPPY[j][i] != null) {
+					System.out.println(MAPPY[j][i]);
+					System.out.println(this.getLinkedVertex(MAPPY[j][i]));
 				} else {
 					System.out.println("TERRE !");
 				}
@@ -59,39 +65,43 @@ public class MatrixMap {
 	}
 
 	public void showVertex() {
-		for (Map.Entry<Vertex, Object> e : this.map.entrySet()) {
-			System.out.println(e.getKey());
-			System.out.println(this.getLinkedVertex(e.getKey()));
+//		for (Map.Entry<Vertex, Object> e : this.map.entrySet()) {
+//			System.out.println(e.getKey());
+//			System.out.println(this.getLinkedVertex(e.getKey()));
+//		}
+		for (int i = 0; i < MAPPY.length; i++) {
+			Vertex[] vertexs = MAPPY[i];
+			for (Vertex vertex : vertexs) {
+				System.out.println(vertex);
+				System.out.println(this.getLinkedVertex(vertex));
+			}
 		}
 	}
 
+//	public Vertex addVertex(Vertex v) {
+//		map.put(v, new HashMap<Vertex, Object>());
+//		return v;
+//	}
 
-	public Vertex addVertex(Vertex v) {
-		map.put(v, new HashMap<Vertex, Object>());
-		return v;
-	}
-
-	
 	public Vertex getVertex(int x, int y) {
-		return mappy[x][y];
-		
+		return MAPPY[x][y];
+
 	}
 
-
-	public void addEdge(Vertex v, Vertex v2, int weight) {
-
-		((HashMap) map.get(v)).put(v2, weight);
-		((HashMap) map.get(v2)).put(v, weight);
-	}
-
-
-	public void addEdge(Vertex v, Vertex v2) {
-		if (!this.map.containsKey(v))
-			this.addVertex(v);
-		if (!this.map.containsKey(v2))
-			this.addVertex(v2);
-		this.addEdge(v, v2, 1);
-	}
+//	public void addEdge(Vertex v, Vertex v2, int weight) {
+//
+//		((HashMap) map.get(v)).put(v2, weight);
+//		((HashMap) map.get(v2)).put(v, weight);
+//	}
+//
+//
+//	public void addEdge(Vertex v, Vertex v2) {
+//		if (!this.map.containsKey(v))
+//			this.addVertex(v);
+//		if (!this.map.containsKey(v2))
+//			this.addVertex(v2);
+//		this.addEdge(v, v2, 1);
+//	}
 
 	/**
 	 * Renvoie la liste des sommets liés au vertex "v"
@@ -102,23 +112,21 @@ public class MatrixMap {
 	public ArrayList<Vertex> getLinkedVertex(Vertex v) {
 		ArrayList<Vertex> list = new ArrayList<Vertex>();
 
-		for (Map.Entry<Vertex, Object> entry : ((Map<Vertex, Object>) map.get(v)).entrySet()) {
-			list.add(entry.getKey());
+//		for (Map.Entry<Vertex, Object> entry : ((Map<Vertex, Object>) map.get(v)).entrySet()) {
+//			list.add(entry.getKey());
+//		}
+		for (int[] direction : DIRECTIONS) {
+			int coordX = direction[0] + v.getCoord()[0];
+			int coordY = direction[1] + v.getCoord()[1];
+
+			if (coordX >= 0 && coordX < 15 && coordY >= 0 && coordY < 15) {
+				if (MAPPY[coordX][coordY] != null) {
+					list.add(MAPPY[coordX][coordY]);
+				}
+			}
 		}
 
 		return list;
-	}
-
-	/**
-	 * retourne le poids de l'arête entre les 2 Vertex ou null si les sommets ne
-	 * sont pas lié
-	 * 
-	 * @param v
-	 * @param v2
-	 * @return
-	 */
-	public Object getWeight(Vertex o, Vertex o2) {
-		return ((Map<Vertex, Object>) map.get(o)).get(o2);
 	}
 
 	/**
@@ -130,12 +138,23 @@ public class MatrixMap {
 		ArrayList<Vertex> longestPath = new ArrayList<Vertex>();
 		ArrayList<Vertex> path;
 
-		for (Map.Entry<Vertex, Object> entry : map.entrySet()) {
+//		for (Map.Entry<Vertex, Object> entry : map.entrySet()) {
+//
+//			path = this.pathFindingLongest(entry.getKey());
+//			this.clearVertex();
+//
+//			longestPath = longestPath.size() > path.size() ? longestPath : path;
+//		}
 
-			path = this.pathFindingLongest(entry.getKey());
-			this.clearVertex();
-
-			longestPath = longestPath.size() > path.size() ? longestPath : path;
+		for (Vertex[] line : MAPPY) {
+			for (Vertex vertex : line) {
+				if (vertex != null) {
+					path = this.pathFindingLongest(vertex);
+					this.clearVertex();
+					
+					longestPath = longestPath.size() > path.size() ? longestPath : path;
+				}
+			}
 		}
 
 		return longestPath;
@@ -145,17 +164,28 @@ public class MatrixMap {
 	 * remets à false le boolean isVisited de tous les Vertex de la map
 	 */
 	public void clearVertex() {
-		for (Map.Entry<Vertex, Object> entry : map.entrySet()) {
-			entry.getKey().setPathVisited(false);
+
+		for (Vertex[] line : MAPPY) {
+			for (Vertex vertex : line) {
+				if (vertex != null)
+					vertex.setPathVisited(false);
+			}
 		}
 	}
-	
+
 	/**
 	 * supprime les parents d'un sommet
 	 */
 	public void clearParent() {
-		for (Map.Entry<Vertex, Object> entry : map.entrySet()) {
-			entry.getKey().clearParent();
+//		for (Map.Entry<Vertex, Object> entry : map.entrySet()) {
+//			entry.getKey().clearParent();
+//		}
+
+		for (Vertex[] line : MAPPY) {
+			for (Vertex vertex : line) {
+				if (vertex != null)
+					vertex.clearParent();
+			}
 		}
 	}
 
@@ -196,12 +226,12 @@ public class MatrixMap {
 	 * @return
 	 */
 	public ArrayList<Vertex> pathFinding(int x1, int y1, int x2, int y2) {
-		Vertex v1 = this.mappy[x1][y1];
-		Vertex v2 = this.mappy[x2][y2];
-		
+		Vertex v1 = this.MAPPY[x1][y1];
+		Vertex v2 = this.MAPPY[x2][y2];
+
 		if (v1 == null || v2 == null)
 			return null;
-		
+
 		return pathFinding(v1, v2);
 	}
 
@@ -209,11 +239,11 @@ public class MatrixMap {
 		ArrayList<Vertex> queue = new ArrayList<Vertex>();
 		ArrayList<Vertex> path = new ArrayList<Vertex>();
 		Vertex goal = null;
-		
+
 		v1.setPathVisited(true);
 
 		queue.add(v1);
-		
+
 		while (queue.size() > 0 && goal == null) {
 			Vertex vertex = queue.remove(0);
 			if (vertex != v2) {
@@ -228,7 +258,6 @@ public class MatrixMap {
 				goal = vertex;
 			}
 		}
-		
 
 		do {
 			path.add(goal);
