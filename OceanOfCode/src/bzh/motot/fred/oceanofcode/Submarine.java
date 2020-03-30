@@ -74,21 +74,21 @@ public class Submarine {
 		// on vérifie si les points de vie ont été modifiés suite à un tir de torpille,
 		// une explosion de mine
 
-		
+     // TODO tester s'il faut mettre this.oppOrders ou oppOrders
+     		enemyDetector.setPositionFromExplosion(this.myOrders, opponentOrders, oppLife);
 
 		// on modifie les positions potentiels de l'ennemi en fonction des ordres qu'il
 		// a donnés
 		enemyDetector.setEnemyAction(opponentOrders);
 		System.err.println("ordres pris en compte");
 		
-		// TODO tester s'il faut mettre this.oppOrders ou oppOrders
-		this.enemyDetector.setPositionFromExplosion(this.myOrders, opponentOrders, this.oppLife, oppLife);
+		
 		System.err.println("explosion prise en compte");
 
 		String action = "";
 
 		if (torpedoCooldown == 0) {
-			Vertex target = this.launchTorpedoFrom(x, y, this.enemyDetector.getEnemyPositions());
+			Vertex target = this.launchTorpedoFrom(x, y, map.getEnemyPositions());
 
 			if (target != null) {
 
@@ -101,7 +101,6 @@ public class Submarine {
 		this.myOrders = action;
 		this.oppOrders = opponentOrders;
 		this.myLife = myLife;
-		this.oppLife = oppLife;
 
 		return action;
 	}

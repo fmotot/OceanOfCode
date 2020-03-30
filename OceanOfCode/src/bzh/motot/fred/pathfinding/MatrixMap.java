@@ -17,6 +17,10 @@ public class MatrixMap {
 //	private Map<Vertex, Object> map;
 	private static final Vertex[][] MAPPY = new Vertex[15][15];
 
+	public static Vertex[][] getMappy() {
+		return MAPPY;
+	}
+
 	/**
 	 * Constructor
 	 */
@@ -24,6 +28,20 @@ public class MatrixMap {
 //		map = new HashMap<Vertex, Object>();
 	}
 
+	
+	public ArrayList<Vertex> getEnemyPositions() {
+		ArrayList<Vertex> positions = new ArrayList<Vertex>();
+		
+		for (Vertex[] vertexs : MAPPY) {
+			for (Vertex v : vertexs) {
+				if (v.isEnemy()) {
+					positions.add(v);
+				}
+			}
+		}
+
+		return positions;
+	}
 	/**
 	 * create the vertex and edge between each map's cell
 	 * 
@@ -34,27 +52,14 @@ public class MatrixMap {
 		char[] lineMap = line.toCharArray();
 
 		for (int x = 0; x < line.length(); x++) {
-			if (lineMap[x] == '.') {
-				MAPPY[x][y] = new Vertex(x, y);
-
-//				if (x > 0) {
-//					if (lineMap[x - 1] == '.') {
-//						this.addEdge(mappy[x - 1][y], mappy[x][y]);
-//					}
-//				}
-//				if (y > 0) {
-//					if (mappy[x][y - 1] != null) {
-//						this.addEdge(mappy[x][y], mappy[x][y - 1]);
-//					}
-//				}
-			}
+			MAPPY[x][y] = new Vertex(x, y, lineMap[x] == '.');
 		}
 	}
 
 	public void showMappy() {
 		for (int i = 0; i < MAPPY.length; i++) {
 			for (int j = 0; j < MAPPY[0].length; j++) {
-				if (MAPPY[j][i] != null) {
+				if (MAPPY[j][i].isWater()) {
 					System.out.println(MAPPY[j][i]);
 					System.out.println(this.getLinkedVertex(MAPPY[j][i]));
 				} else {
@@ -120,7 +125,7 @@ public class MatrixMap {
 			int coordY = direction[1] + v.getCoord()[1];
 
 			if (coordX >= 0 && coordX < 15 && coordY >= 0 && coordY < 15) {
-				if (MAPPY[coordX][coordY] != null) {
+				if (MAPPY[coordX][coordY].isWater()) {
 					list.add(MAPPY[coordX][coordY]);
 				}
 			}
@@ -148,7 +153,7 @@ public class MatrixMap {
 
 		for (Vertex[] line : MAPPY) {
 			for (Vertex vertex : line) {
-				if (vertex != null) {
+				if (vertex.isWater()) {
 					path = this.pathFindingLongest(vertex);
 					this.clearVertex();
 					
@@ -167,7 +172,7 @@ public class MatrixMap {
 
 		for (Vertex[] line : MAPPY) {
 			for (Vertex vertex : line) {
-				if (vertex != null)
+				if (vertex.isWater())
 					vertex.setPathVisited(false);
 			}
 		}
@@ -183,7 +188,7 @@ public class MatrixMap {
 
 		for (Vertex[] line : MAPPY) {
 			for (Vertex vertex : line) {
-				if (vertex != null)
+				if (vertex.isWater())
 					vertex.clearParent();
 			}
 		}
@@ -229,43 +234,45 @@ public class MatrixMap {
 		Vertex v1 = this.MAPPY[x1][y1];
 		Vertex v2 = this.MAPPY[x2][y2];
 
-		if (v1 == null || v2 == null)
+		if (!v1.isWater() || !v2.isWater())
 			return null;
 
 		return pathFinding(v1, v2);
 	}
 
 	public ArrayList<Vertex> pathFinding(Vertex v1, Vertex v2) {
-		ArrayList<Vertex> queue = new ArrayList<Vertex>();
 		ArrayList<Vertex> path = new ArrayList<Vertex>();
-		Vertex goal = null;
-
-		v1.setPathVisited(true);
-
-		queue.add(v1);
-
-		while (queue.size() > 0 && goal == null) {
-			Vertex vertex = queue.remove(0);
-			if (vertex != v2) {
-				for (Vertex v : this.getLinkedVertex(vertex)) {
-					if (!v.isPathVisited()) {
-						v.setPathVisited(true);
-						v.setParent(vertex);
-						queue.add(v);
+		if (v2.isWater()) {
+			ArrayList<Vertex> queue = new ArrayList<Vertex>();
+			Vertex goal = null;
+			
+			v1.setPathVisited(true);
+			
+			queue.add(v1);
+			
+			while (queue.size() > 0 && goal == null) {
+				Vertex vertex = queue.remove(0);
+				if (vertex != v2) {
+					for (Vertex v : this.getLinkedVertex(vertex)) {
+						if (!v.isPathVisited()) {
+							v.setPathVisited(true);
+							v.setParent(vertex);
+							queue.add(v);
+						}
 					}
+				} else {
+					goal = vertex;
 				}
-			} else {
-				goal = vertex;
 			}
+			
+			do {
+				path.add(goal);
+				goal = goal.getParent();
+			} while (goal != null);
+			this.clearVertex();
+			this.clearParent();
 		}
 
-		do {
-			path.add(goal);
-			goal = goal.getParent();
-		} while (goal != null);
-
-		this.clearVertex();
-		this.clearParent();
 		return path;
 	}
 
