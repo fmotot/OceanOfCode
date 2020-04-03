@@ -1,6 +1,7 @@
 package bzh.motot.fred.oceanofcode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import bzh.motot.fred.pathfinding.MatrixMap;
@@ -22,33 +23,34 @@ public class Detector {
 
 	private static MatrixMap map;
 	private static Vertex[][] mappy;
-//	private ArrayList<int[]> enemyPositions = new ArrayList<int[]>();
-//	private int[][] enemyPositionsMap = new int[15][15];
 	private int enemyLife;
+	private ArrayList<ArrayList<int[]>> enemyMovements = new ArrayList<ArrayList<int[]>>();
+	private int enemySilence = 0;
 
 	public Detector(MatrixMap map) {
 		this.map = map;
 		this.mappy = map.getMappy();
-//		for (int i = 0; i < enemyPositionsMap.length; i++) {
-//			for (int j = 0; j < enemyPositionsMap[0].length; j++) {
-//				this.map.getVertex(j, i);
-//				if (this.map.getVertex(j, i) == null) {
-//					enemyPositionsMap[j][i] = ISLAND;
-//				} else {
-//					enemyPositionsMap[j][i] = ENEMY;
-//					enemyPositions.add(new int[] { i, j });
-//				}
-//			}
-//		}
-		
 		this.enemyLife = 6;
+		enemyMovements.add(new ArrayList<int[]>());
 	}
 
-	public void setEnemyAction(String actionsDetected) {
+	// TODO Reste à gérer le cas de 2 tir de torpille
+	public void setPositionsEnemy(String actionsDetected, String myOrders, int oppLife) {
 		ArrayList<String[]> actions = splitActions(actionsDetected);
+		ArrayList<String[]> myActions = splitActions(myOrders);
+
+		for (String[] action : myActions) {
+			switch (action[0]) {
+			case "TORPEDO":
+				System.err.printf("tir de torpille de ma part pris en compte : %s %s %n", action[1], action[2]);
+				setPositionFromExplosion(myOrders, actionsDetected, oppLife);
+				break;
+			default:
+				break;
+			}
+		}
 
 		for (String[] action : actions) {
-
 			switch (action[0]) {
 			case "MOVE":
 				this.setPositionFromMove(action[1]);
@@ -56,7 +58,8 @@ public class Detector {
 				break;
 			case "TORPEDO":
 				this.setPositionFromTorpedo(Integer.parseInt(action[1]), Integer.parseInt(action[2]));
-				System.err.println("tir de torpille pris en compte");
+				setPositionFromExplosion(myOrders, actionsDetected, oppLife);
+				System.err.printf("tir de torpille ennemi pris en compte : %s %s %n", action[1], action[2]);
 				break;
 			case "SURFACE":
 				this.setPositionFromSurface(Integer.parseInt(action[1]));
@@ -64,19 +67,19 @@ public class Detector {
 				break;
 			case "SILENCE":
 				// à modifier bien sûr
-				
-				for (Vertex[] vertexs : mappy) {
-					for(Vertex v : vertexs) {
-						if (v.isWater())
-							v.setEnemy(true);
-					}
-				}
+				this.setPositionFromSilence();
+//				for (Vertex[] vertexs : mappy) {
+//					for(Vertex v : vertexs) {
+//						if (v.isWater())
+//							v.setEnemy(true);
+//					}
+//				}
 				break;
 			default:
 				break;
 			}
 		}
-		
+
 		showMap();
 	}
 
@@ -88,6 +91,92 @@ public class Detector {
 		}
 
 		return actions;
+	}
+
+	private void setPositionFromSilence() {
+		// prendre en compte les iles éventuelles
+
+		ArrayList<int[]> positions = new ArrayList<int[]>();
+		int[] coord = new int[2];
+
+		boolean nextTestOK = true;
+		for (int[] direction : map.DIRECTIONS) {
+			nextTestOK = true;
+			for (int i = 1; i <= 4; i++) {
+				if (nextTestOK) {
+					for (ArrayList<int[]> mov : enemyMovements) {
+						for (int index = mov.size() - 1; index >= 0; index--) {
+							coord[0] += mov.get(index)[0];
+							coord[1] += mov.get(index)[1];
+							int[] dir = arrayMultiply(direction, i);
+							System.err.println("test " + coord[0] + " " + coord[1] + " vs " + dir[0] + " " + dir[1]);
+							try {
+								if (Arrays.equals(coord, dir)) {
+									System.err.println(
+											coord[0] + " " + coord[1] + " vs " + dir[0] + " " + dir[1] + " sont égaux");
+									positions.add(dir);
+									nextTestOK = false;
+									break;
+								}
+							} catch (ArrayIndexOutOfBoundsException e) {
+//								System.err.println("Sortie de la map lors test positions/silence");
+//								System.err.println(e.getMessage());
+							}
+						}
+						coord[0] = 0;
+						coord[1] = 0;
+					}
+					System.err.println();
+				}
+			}
+		}
+		System.err.println("==========================================================================");
+		System.err.println("==========================================================================");
+		System.err.println("==========================================================================");
+		System.err.println("==========================================================================");
+		System.err.println("==========================================================================");
+		System.err.println("          Silence,  L'ennemi n'a pas pris les directions : ");
+		System.err.println("==========================================================================");
+		System.err.println("==========================================================================");
+		System.err.println("==========================================================================");
+		System.err.println("==========================================================================");
+
+		for (int[] direction : positions) {
+			System.err.println(direction[0] + " " + direction[1]);
+			int x = direction[0] / (direction[0] == 0 ? 1 : Math.abs(direction[0]));
+			int y = direction[1] / (direction[1] == 0 ? 1 : Math.abs(direction[1]));
+			switch (x) {
+			case -1:
+				System.err.println("west");
+				break;
+			case 1:
+				System.err.println("east");
+				break;
+			}
+			switch (y) {
+			case -1:
+				System.err.println("north");
+				break;
+			case 1:
+				System.err.println("south");
+				break;
+			}
+
+		}
+		
+		
+
+		// TODO ajouter les positions du silence
+		// pour toutes les positions dans la croix NS/EW
+		// tant qu'on ne rencontre pas une limite de direction
+		// pour toutes les positions potentielles de l'ennemi sur la carte
+		// je crée une liste de positions potentiels supplémentaires à ajouter à la
+		// liste des positions potentiels
+		//
+	}
+
+	private int[] arrayMultiply(int[] array, int x) {
+		return new int[] { array[0] * x, array[1] * x };
 	}
 
 	private void setPositionFromSurface(int pos) {
@@ -126,20 +215,21 @@ public class Detector {
 	}
 
 	/**
-	 * réalise l'intersection des positions ennemies sur la carte avec la lsite des positions fournies
-	 * (parmi les positions déjà connues, ne garde que celles fournies)
+	 * réalise l'intersection des positions ennemies sur la carte avec la lsite des
+	 * positions fournies (parmi les positions déjà connues, ne garde que celles
+	 * fournies)
+	 * 
 	 * @param positions
 	 */
 	private void positionsToMapCross(ArrayList<Vertex> positions) {
 		for (int y = 0; y < mappy.length; y++) {
 			for (int x = 0; x < mappy.length; x++) {
 				Vertex v = mappy[x][y];
-				
+
 				if (v.isEnemy()) {
 					if (positions.contains(v)) {
 						v.setEnemy(true);
-					}
-					else {
+					} else {
 						v.setEnemy(false);
 					}
 				}
@@ -150,10 +240,11 @@ public class Detector {
 
 	/**
 	 * Exclus des positions ennemies déjà connues la liste des positions fournies
+	 * 
 	 * @param positions
 	 */
 	private void positionsToMapExclude(ArrayList<Vertex> positions) {
-		
+
 		for (Vertex v : positions) {
 			if (v.isWater()) {
 				System.err.print(v.getCoord()[0] + " " + v.getCoord()[1] + ", ");
@@ -167,22 +258,22 @@ public class Detector {
 
 	public void showMap() {
 		Vertex[][] carte = map.getMappy();
+		System.err.println("▓▓012345678901234");
 		for (int y = 0; y < carte.length; y++) {
+			System.err.printf("%02d", y);
 			for (int x = 0; x < carte.length; x++) {
 				Vertex v = carte[x][y];
-				 if (v.isEnemy()) {
-					System.err.print('●');
-				}
-				else if (v.isWater()) {
-					System.err.print(' ');
-				}
-				else {
+				if (v.isEnemy()) {
+					System.err.print('▓');
+				} else if (v.isWater()) {
+					System.err.print('░');
+				} else {
 					System.err.print('█');
 				}
 			}
 			System.err.println();
 		}
-		
+
 		// affiche la liste des positions ennemies potentielles
 		System.err.println("liste des positions ennemies potentielles :");
 		System.err.println(map.getEnemyPositions());
@@ -198,12 +289,13 @@ public class Detector {
 		int directionY = 0;
 		int fromX = 0;
 		int fromY = 0;
+		int[] movement = new int[2];
 		ArrayList<Vertex> positions = map.getEnemyPositions();
-		
 
 		switch (direction) {
 		case "N":
 			directionY += 1;
+
 			break;
 		case "S":
 			directionY += -1;
@@ -214,28 +306,29 @@ public class Detector {
 		case "E":
 			directionX += -1;
 			break;
-
 		default:
 			break;
 		}
 
+		movement[0] = directionX;
+		movement[1] = directionY;
+		enemyMovements.get(enemySilence).add(movement);
+
 		for (int y = 0; y < mappy.length; y++) {
 			for (int x = 0; x < mappy[0].length; x++) {
-				
+
 				if (mappy[x][y].isWater()) {
-					
+
 					fromX = x + directionX;
 					fromY = y + directionY;
 					if (fromX >= 0 && fromX < 15 && fromY >= 0 && fromY < 15) {
-						
+
 						if (positions.contains(mappy[fromX][fromY])) {
 							mappy[x][y].setEnemy(true);
-						}
-						else {
+						} else {
 							mappy[x][y].setEnemy(false);
 						}
-					} 
-					else {
+					} else {
 						mappy[x][y].setEnemy(false);
 					}
 				}
@@ -262,7 +355,7 @@ public class Detector {
 		return actionType;
 	}
 
-	public void setPositionFromExplosion(String myOrders, String oppOrders, int enemyLife) {
+	private void setPositionFromExplosion(String myOrders, String oppOrders, int enemyLife) {
 		String[] oppTorpedo = null;
 		String[] myTorpedo = null;
 
@@ -274,19 +367,19 @@ public class Detector {
 
 		if (oppTorpedo != null ^ myTorpedo != null) {
 			ArrayList<Vertex> positions = new ArrayList<Vertex>();
-			
+
 			String[] torpedo = oppTorpedo != null ? oppTorpedo : myTorpedo;
 			int x = Integer.parseInt(torpedo[1]);
 			int y = Integer.parseInt(torpedo[2]);
 			int coordX;
 			int coordY;
-			
+
 			System.err.println("un seul tir de torpille détecté");
 			if (enemyLife < this.enemyLife) {
 				System.err.println("adv touché");
-				
-				if (enemyLife == this.enemyLife - 1 ) {
-					
+
+				if (enemyLife == this.enemyLife - 1) {
+
 					System.err.println("adv perd 1 pv");
 					for (int[] coord : EXPLOSION_FROM) {
 						coordX = x + coord[0];
@@ -297,8 +390,7 @@ public class Detector {
 						}
 					}
 					System.err.println();
-				}
-				else {
+				} else {
 					System.err.println("adv perd 2 pv");
 					positions.add(mappy[x][y]);
 					System.err.println("liste des positions à croisées : ");
@@ -318,6 +410,7 @@ public class Detector {
 				}
 				System.err.println();
 				positionsToMapExclude(positions);
+				System.err.println("explosion prise en compte");
 			}
 		}
 

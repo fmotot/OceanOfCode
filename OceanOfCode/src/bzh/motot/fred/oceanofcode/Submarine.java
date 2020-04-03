@@ -74,19 +74,32 @@ public class Submarine {
 		// on vérifie si les points de vie ont été modifiés suite à un tir de torpille,
 		// une explosion de mine
 
-     // TODO tester s'il faut mettre this.oppOrders ou oppOrders
-     		enemyDetector.setPositionFromExplosion(this.myOrders, opponentOrders, oppLife);
+        
+        
+        /*
+         * Pour l'ennemi
+         * gérer ses actions dans l'ordre, 
+         * tester l'explosion en même temps (ou presque) que l'endroit d'où il a pu tirer
+         * 
+         * tester l'explosion de ma torpille à ce moment-là si tir simultané ou avant(?) si tir unique de ma part 
+         */
+        
+         
+        // TODO modifier le système de détection lors de tir de torpille
+        
+//        enemyDetector.setPositionFromExplosion(this.myOrders, opponentOrders, oppLife);
 
 		// on modifie les positions potentiels de l'ennemi en fonction des ordres qu'il
 		// a donnés
-		enemyDetector.setEnemyAction(opponentOrders);
+		enemyDetector.setPositionsEnemy(opponentOrders, this.myOrders,oppLife);
 		System.err.println("ordres pris en compte");
 		
 		
-		System.err.println("explosion prise en compte");
+		
 
 		String action = "";
 
+		// TODO vérifier si tir de torpille possible après déplacement
 		if (torpedoCooldown == 0) {
 			Vertex target = this.launchTorpedoFrom(x, y, map.getEnemyPositions());
 

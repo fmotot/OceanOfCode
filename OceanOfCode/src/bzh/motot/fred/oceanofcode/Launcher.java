@@ -51,21 +51,21 @@ public class Launcher {
 	
 	public static int oppStartX = 7;
 	public static int oppStartY = 7;
-	public static String[] opponentOrders = {
+	public static String[] opponentOrders2 = {
 			"NA",
 			"MOVE S",
 			"MOVE E",
 			"MOVE E",
 			"MOVE E",
 			"MOVE N",
-			"MOVE W|TORPEDO 9 8",
+			"MOVE W|TORPEDO 11 8",
 			"MOVE S",
 			"MOVE W",
-			"MOVE W|TORPEDO 7 10",
+			"TORPEDO 8 10|MOVE W",
 			"MOVE W",
 			"MOVE S",
 			"MOVE S|TORPEDO 10 8",
-			"MOVE E",
+			"SILENCE S 1",  //SILENCE S 1
 			"MOVE E",
 			"MOVE E|TORPEDO 9 12",
 			"MOVE E",
@@ -81,7 +81,6 @@ public class Launcher {
 			"MOVE S",
 			"MOVE S",
 			"MOVE S",
-			"SILENCE S 1",  //SILENCE S 1
 			"MOVE S",
 			"MOVE W",
 			
@@ -91,6 +90,37 @@ public class Launcher {
 			"MOVE W",
 			"MOVE N",
 			"MOVE W SILENCE|TORPEDO 7 9"
+	};
+	public static String[] opponentOrders = {
+			"NA",
+			"MOVE S",
+			"MOVE S",
+			"MOVE S",
+			"MOVE S",
+			"MOVE W",
+			"MOVE W",
+			"MOVE W",
+			"MOVE W",
+			"MOVE W",
+			"MOVE N",
+			"MOVE N",
+			"MOVE N",
+			"MOVE N",
+			"MOVE E",
+			"MOVE S",
+			"SILENCE S 0",
+//			"MOVE E",
+//			"MOVE E",
+//			"MOVE S",
+//			"MOVE S",
+//			"MOVE S",
+//			"MOVE S",
+//			"MOVE S",
+//			"MOVE W",
+//			"MOVE W",
+//			"MOVE S",
+//			"MOVE W",
+//			"MOVE N",
 	};
 	public static String strMyPath = "[6 14, 6 13, 6 12, 5 12, 5 13, 5 14, 4 14, 4 13, 3 13, 2 13, 1 13, 1 14, 0 14, 0 13, 0 12, 1 12, 1 11, 2 11, 2 10, 3 10, 4 10, 5 10, 6 10, 6 11, 7 11, 8 11, 9 11, 9 12, 8 12, 8 13, 7 13, 7 14, 8 14, 9 14, 10 14, 11 14, 12 14, 13 14, 14 14, 14 13, 14 12, 13 12, 13 11, 14 11, 14 10, 14 9, 14 8, 14 7, 13 7, 13 8, 13 9, 12 9, 12 10, 11 10, 11 9, 10 9, 9 9, 9 10, 8 10, 8 9, 8 8, 8 7, 9 7, 10 7, 10 8, 11 8, 12 8, 12 7, 12 6, 13 6, 14 6, 14 5, 14 4, 14 3, 14 2, 13 2, 13 1, 12 1, 12 2, 12 3, 11 3, 11 4, 11 5, 10 5, 9 5, 9 6, 8 6, 7 6, 7 7, 7 8, 6 8, 5 8, 4 8, 4 9, 3 9, 2 9, 1 9, 1 8, 1 7, 0 7, 0 6, 1 6, 1 5, 2 5, 3 5, 4 5, 4 4, 4 3, 4 2, 5 2, 5 3, 6 3, 6 2, 6 1, 6 0, 5 0, 4 0, 4 1, 3 1, 3 2, 2 2, 2 1, 2 0, 1 0, 0 0, 0 1, 1 1]";
 
@@ -118,8 +148,8 @@ public class Launcher {
 			".......xxxx.xx.",
 			".......xx...xx.",
 			"...............",
-			"..xx...........",
-			"..xx...........",
+			"...............",
+			".....x.........",
 			"...............",
 			"...............",
 			"...xx.....xxx..",
@@ -142,12 +172,6 @@ public class Launcher {
 	public static void main(String[] args) {
 		
 		map = new MatrixMap();
-		try {
-			Thread.currentThread().sleep(50);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		for (int i = 0; i < data.length; i++) {
 			map.setLine(data[i], i);
 		}
@@ -169,9 +193,6 @@ public class Launcher {
 			System.err.println("mes actions : " + actions);
 			actions = suby.nextAction(x, y, myLife, oppLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown, sonarResult, opponentOrders[i]);
 			
-			if (actions.split(" ")[0].equals("TORPEDO")) {
-				oppLife--;
-			}
 			
 			System.err.println("-----------------------");
 			nextTurn(actions);
@@ -182,7 +203,6 @@ public class Launcher {
 	}
 
 	private static String getCoordOpp(String opponentOrders) {
-		// TODO Auto-generated method stub
 		
 		if (!opponentOrders.equals("NA")) {
 			if (opponentOrders.contains("|")) {
@@ -247,21 +267,18 @@ public class Launcher {
 				break;
 			}
 		}
-		// TODO myLife ?
+		// TODO myLife ? oppLife ?
 		
-		// TODO oppLife ?
 		
-		// TODO torpedoCoolDown commence à 3, -1 par tour jusqu'à 0 où il reste tant que pas torpedo
+		// torpedoCoolDown commence à 3, -1 par tour jusqu'à 0 où il reste tant que pas torpedo
 		if (torpedoCooldown > 0) {
 			torpedoCooldown--;
 		}
 		
-		// TODO 
 		
 	}
 
 	private static void setPositionFromMove(String string) {
-		// TODO Auto-generated method stub
 		switch (string) {
 		case "N" :
 			y--;
