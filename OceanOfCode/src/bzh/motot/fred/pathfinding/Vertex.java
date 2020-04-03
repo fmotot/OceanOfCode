@@ -10,9 +10,10 @@ public class Vertex {
 	
 	private static ArrayList<Vertex> listVertex;
 	
-	
+	private boolean isWater;
 	private boolean isMine = false;
 	private boolean isEnemy = true;
+	private boolean isEnemyVisited = false;
 	private boolean isVisited = false;
 	private boolean isPathVisited = false;
 	private Vertex parent = null;
@@ -23,9 +24,12 @@ public class Vertex {
 	 * @param x
 	 * @param y
 	 */
-	public Vertex (int x, int y) {
+	public Vertex (int x, int y, boolean isWater) {
 		this.X = x;
 		this.Y = y;
+		this.isWater = isWater;
+		if (!isWater)
+			this.setEnemy(false);
 	}
 	
 	
@@ -35,6 +39,11 @@ public class Vertex {
 	 */
 	
 	
+	public boolean isWater() {
+		return isWater;
+	}
+
+
 	public boolean isPathVisited() {
 		return this.isPathVisited;
 	}
