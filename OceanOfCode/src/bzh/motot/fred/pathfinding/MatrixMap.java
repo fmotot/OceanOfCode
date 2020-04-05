@@ -1,38 +1,50 @@
 package bzh.motot.fred.pathfinding;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import bzh.motot.fred.oceanofcode.*;
 
-public class MatrixMap {
+public class MatrixMap implements Cloneable {
 	public static final int[] NORTH = { 0, -1 };
 	public static final int[] SOUTH = { 0, 1 };
 	public static final int[] EAST = { 1, 0 };
 	public static final int[] WEST = { -1, 0 };
 	public static final int[][] DIRECTIONS = { NORTH, SOUTH, EAST, WEST };
 
-//	private Map<Vertex, Object> map;
-	private static final Vertex[][] MAPPY = new Vertex[15][15];
+	public static int clone = 0; 
+	private final Vertex[][] mappy = new Vertex[15][15];
 
-	public static Vertex[][] getMappy() {
-		return MAPPY;
+	public Vertex[][] getMappy() {
+		return mappy;
 	}
 
 	/**
 	 * Constructor
 	 */
 	public MatrixMap() {
-//		map = new HashMap<Vertex, Object>();
 	}
 
+	public MatrixMap clone() throws CloneNotSupportedException {
+		
+		MatrixMap m = (MatrixMap) super.clone();
+		
+		for (Vertex[] vertexs : m.mappy) {
+			for (Vertex vertex : vertexs) {
+				vertex = vertex.clone();
+			}
+		}
+		clone++;
+		return m;
+	}
 	
 	public ArrayList<Vertex> getEnemyPositions() {
 		ArrayList<Vertex> positions = new ArrayList<Vertex>();
 		
-		for (Vertex[] vertexs : MAPPY) {
+		for (Vertex[] vertexs : mappy) {
 			for (Vertex v : vertexs) {
 				if (v.isEnemy()) {
 					positions.add(v);
@@ -42,6 +54,7 @@ public class MatrixMap {
 
 		return positions;
 	}
+	
 	/**
 	 * create the vertex and edge between each map's cell
 	 * 
@@ -52,16 +65,16 @@ public class MatrixMap {
 		char[] lineMap = line.toCharArray();
 
 		for (int x = 0; x < line.length(); x++) {
-			MAPPY[x][y] = new Vertex(x, y, lineMap[x] == '.');
+			mappy[x][y] = new Vertex(x, y, lineMap[x] == '.');
 		}
 	}
 
 	public void showMappy() {
-		for (int i = 0; i < MAPPY.length; i++) {
-			for (int j = 0; j < MAPPY[0].length; j++) {
-				if (MAPPY[j][i].isWater()) {
-					System.out.println(MAPPY[j][i]);
-					System.out.println(this.getLinkedVertex(MAPPY[j][i]));
+		for (int i = 0; i < mappy.length; i++) {
+			for (int j = 0; j < mappy[0].length; j++) {
+				if (mappy[j][i].isWater()) {
+					System.out.println(mappy[j][i]);
+					System.out.println(this.getLinkedVertex(mappy[j][i]));
 				} else {
 					System.out.println("TERRE !");
 				}
@@ -70,12 +83,8 @@ public class MatrixMap {
 	}
 
 	public void showVertex() {
-//		for (Map.Entry<Vertex, Object> e : this.map.entrySet()) {
-//			System.out.println(e.getKey());
-//			System.out.println(this.getLinkedVertex(e.getKey()));
-//		}
-		for (int i = 0; i < MAPPY.length; i++) {
-			Vertex[] vertexs = MAPPY[i];
+		for (int i = 0; i < mappy.length; i++) {
+			Vertex[] vertexs = mappy[i];
 			for (Vertex vertex : vertexs) {
 				System.out.println(vertex);
 				System.out.println(this.getLinkedVertex(vertex));
@@ -83,30 +92,12 @@ public class MatrixMap {
 		}
 	}
 
-//	public Vertex addVertex(Vertex v) {
-//		map.put(v, new HashMap<Vertex, Object>());
-//		return v;
-//	}
 
 	public Vertex getVertex(int x, int y) {
-		return MAPPY[x][y];
+		return mappy[x][y];
 
 	}
 
-//	public void addEdge(Vertex v, Vertex v2, int weight) {
-//
-//		((HashMap) map.get(v)).put(v2, weight);
-//		((HashMap) map.get(v2)).put(v, weight);
-//	}
-//
-//
-//	public void addEdge(Vertex v, Vertex v2) {
-//		if (!this.map.containsKey(v))
-//			this.addVertex(v);
-//		if (!this.map.containsKey(v2))
-//			this.addVertex(v2);
-//		this.addEdge(v, v2, 1);
-//	}
 
 	/**
 	 * Renvoie la liste des sommets liés au vertex "v"
@@ -117,20 +108,20 @@ public class MatrixMap {
 	public ArrayList<Vertex> getLinkedVertex(Vertex v) {
 		ArrayList<Vertex> list = new ArrayList<Vertex>();
 
-//		for (Map.Entry<Vertex, Object> entry : ((Map<Vertex, Object>) map.get(v)).entrySet()) {
-//			list.add(entry.getKey());
-//		}
 		for (int[] direction : DIRECTIONS) {
 			int coordX = direction[0] + v.getCoord()[0];
 			int coordY = direction[1] + v.getCoord()[1];
 
+			// TODO voir s'il ne faut pas enlever la condition isWater maintenant que les vertex d'ile sont aussi dans la map (erreur NullPointer dans pathFinding)
 			if (coordX >= 0 && coordX < 15 && coordY >= 0 && coordY < 15) {
-				if (MAPPY[coordX][coordY].isWater()) {
-					list.add(MAPPY[coordX][coordY]);
+				if (mappy[coordX][coordY].isWater()) {
+					list.add(mappy[coordX][coordY]);
 				}
 			}
 		}
 
+		// TODO voir pour mélanger l'ordre dans la liste
+		Collections.shuffle(list);
 		return list;
 	}
 
@@ -143,18 +134,11 @@ public class MatrixMap {
 		ArrayList<Vertex> longestPath = new ArrayList<Vertex>();
 		ArrayList<Vertex> path;
 
-//		for (Map.Entry<Vertex, Object> entry : map.entrySet()) {
-//
-//			path = this.pathFindingLongest(entry.getKey());
-//			this.clearVertex();
-//
-//			longestPath = longestPath.size() > path.size() ? longestPath : path;
-//		}
 
-		for (Vertex[] line : MAPPY) {
+		for (Vertex[] line : mappy) {
 			for (Vertex vertex : line) {
 				if (vertex.isWater()) {
-					path = this.pathFindingLongest(vertex);
+					path = this.findLongestPathFrom(vertex);
 					this.clearVertex();
 					
 					longestPath = longestPath.size() > path.size() ? longestPath : path;
@@ -167,13 +151,28 @@ public class MatrixMap {
 
 	/**
 	 * remets à false le boolean isVisited de tous les Vertex de la map
+	 * réinitialise le chemin pris par le sous-marin sur la carte
 	 */
 	public void clearVertex() {
 
-		for (Vertex[] line : MAPPY) {
+		for (Vertex[] line : mappy) {
 			for (Vertex vertex : line) {
 				if (vertex.isWater())
-					vertex.setPathVisited(false);
+					vertex.setVisited(false);
+			}
+		}
+	}
+	
+	
+	/**
+	 * remets à false le boolean isPathVisited de tous les Vertex de la map
+	 * réinitialise le chemin pris par le sous-marin pour le pathFinding
+	 */
+	public void clearPathVertex() {
+
+		for (Vertex[] line : mappy) {
+			for (Vertex vertex : line) {
+				vertex.setPathVisited(false);
 			}
 		}
 	}
@@ -182,11 +181,8 @@ public class MatrixMap {
 	 * supprime les parents d'un sommet
 	 */
 	public void clearParent() {
-//		for (Map.Entry<Vertex, Object> entry : map.entrySet()) {
-//			entry.getKey().clearParent();
-//		}
 
-		for (Vertex[] line : MAPPY) {
+		for (Vertex[] line : mappy) {
 			for (Vertex vertex : line) {
 				if (vertex.isWater())
 					vertex.clearParent();
@@ -196,16 +192,17 @@ public class MatrixMap {
 
 	/**
 	 * Retourne un des plus longs chemins depuis le Vertex fourni
+	 * nécessite de clear les isPathVisited après
 	 * 
 	 * @param v le Vertex de départ
 	 * @return ArrayList<Vertex> un chemin des plus longs
 	 */
-	public ArrayList<Vertex> pathFindingLongest(Vertex v) {
+	public ArrayList<Vertex> findLongestPathFrom(Vertex v) {
 		ArrayList<Vertex> path = new ArrayList<Vertex>();
 		v.setPathVisited(true);
 		for (Vertex vertex : this.getLinkedVertex(v)) {
-			if (!vertex.isPathVisited()) {
-				ArrayList<Vertex> newPath = pathFindingLongest(vertex);
+			if (!vertex.isPathVisited() && !vertex.isVisited()) {
+				ArrayList<Vertex> newPath = findLongestPathFrom(vertex);
 
 				if (newPath.size() > path.size() - 1) {
 					path = newPath;
@@ -220,6 +217,15 @@ public class MatrixMap {
 
 		return path;
 	}
+	
+	public ArrayList<Vertex> getLongestPathFrom(Vertex v) {
+		this.clearPathVertex();
+		ArrayList<Vertex> path = findLongestPathFrom( v);
+		
+
+		return path;
+	}
+	
 
 	/**
 	 * fonction spécifique pour Ocean of Code
@@ -231,8 +237,8 @@ public class MatrixMap {
 	 * @return
 	 */
 	public ArrayList<Vertex> pathFinding(int x1, int y1, int x2, int y2) {
-		Vertex v1 = this.MAPPY[x1][y1];
-		Vertex v2 = this.MAPPY[x2][y2];
+		Vertex v1 = this.mappy[x1][y1];
+		Vertex v2 = this.mappy[x2][y2];
 
 		if (!v1.isWater() || !v2.isWater())
 			return null;
@@ -242,6 +248,14 @@ public class MatrixMap {
 
 	public ArrayList<Vertex> pathFinding(Vertex v1, Vertex v2) {
 		ArrayList<Vertex> path = new ArrayList<Vertex>();
+		this.clearPathVertex();
+		this.clearParent();
+		if(v2.toString().equalsIgnoreCase("4 0")) {
+			System.err.println(this.mappy[6][1]);
+			System.err.println(this.mappy[6][1].isPathVisited());
+		}
+		
+		
 		if (v2.isWater()) {
 			ArrayList<Vertex> queue = new ArrayList<Vertex>();
 			Vertex goal = null;
@@ -249,15 +263,30 @@ public class MatrixMap {
 			v1.setPathVisited(true);
 			
 			queue.add(v1);
+			if(v2.toString().equalsIgnoreCase("4 0")) {
+				System.err.println("queue : ");
+				System.err.println(queue);
+			}
 			
 			while (queue.size() > 0 && goal == null) {
 				Vertex vertex = queue.remove(0);
 				if (vertex != v2) {
+					if(v2.toString().equalsIgnoreCase("4 0")) {
+						System.err.println("vertex : " + vertex);
+					}
 					for (Vertex v : this.getLinkedVertex(vertex)) {
+						if(v2.toString().equalsIgnoreCase("4 0")) {
+							System.err.print(v + " ");
+							System.err.println(v.isPathVisited());
+						}
 						if (!v.isPathVisited()) {
 							v.setPathVisited(true);
 							v.setParent(vertex);
 							queue.add(v);
+						}
+						if(v2.toString().equalsIgnoreCase("4 0")) {
+							System.err.println("queue : ");
+							System.err.println(queue);
 						}
 					}
 				} else {
@@ -267,10 +296,11 @@ public class MatrixMap {
 			
 			do {
 				path.add(goal);
+				System.err.println(goal);
+				// TODO voir pour les problèmes de nullPointerException lors de recherche pour tir de torpille, voir les appels de la fonction
 				goal = goal.getParent();
 			} while (goal != null);
-			this.clearVertex();
-			this.clearParent();
+			System.err.println("remise à 0 pathVisited");
 		}
 
 		return path;

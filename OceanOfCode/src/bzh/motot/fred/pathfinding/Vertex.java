@@ -2,12 +2,13 @@ package bzh.motot.fred.pathfinding;
 
 import java.util.ArrayList;
 
-public class Vertex {
+public class Vertex implements Cloneable{
 
 	private final int X;
 	private final int Y;
 	
 	
+
 	private static ArrayList<Vertex> listVertex;
 	
 	private boolean isWater;
@@ -32,38 +33,63 @@ public class Vertex {
 			this.setEnemy(false);
 	}
 	
+	@Override
+	protected Vertex clone() throws CloneNotSupportedException {
+		// TODO Auto-generated method stub
+		return (Vertex) super.clone();
+	}
 	
+	
+	/**
+	 * 
+	 * @return true si c'est de l'eau, false si une île
+	 */
+	public boolean isWater() {
+		return isWater;
+	}
 	/*
 	 * Pour les besoins en Pathfinding
 	 * 
 	 */
 	
 	
-	public boolean isWater() {
-		return isWater;
-	}
 
 
+	/**
+	 * PATH_FINDING
+	 * @return true si la case a déjà été utilisé pour le pathfinding
+	 */
 	public boolean isPathVisited() {
 		return this.isPathVisited;
 	}
 	
+	/**
+	 * PATH_FINDING
+	 * @param isPathVisited
+	 */
 	public void setPathVisited(boolean isPathVisited) {
 		this.isPathVisited = isPathVisited;
 	}
 	
-//	public void clearPathVisited() {
-//		this.isVisited = false;
-//	}
-	
+	/**
+	 * PATH_FINDING
+	 * @param v
+	 */
 	public void setParent(Vertex v) {
 		this.parent = v;
 	}
 	
+	/**
+	 * PATH_FINDING
+	 */
 	public void clearParent() {
 		this.parent = null;
 	}
 	
+	/**
+	 * PATH_FINDING
+	 * @return
+	 */
 	public Vertex getParent() {
 		return this.parent;
 	}
@@ -105,19 +131,21 @@ public class Vertex {
 	 * 
 	 */
 	
-	
+	/**
+	 * Chemin en cours pris par le sous-marin
+	 * @return true si déjà pris
+	 */
 	public boolean isVisited() {
 		return this.isVisited;
 	}
 	
+	/**
+	 * Chemin en cours pris par le sous-marin
+	 * @param isVisited
+	 */
 	public void setVisited(boolean isVisited) {
 		this.isVisited = isVisited;
 	}
-//	
-//	public void clearVisited() {
-//		this.isVisited = false;
-//	}
-	
 	
 	/*
 	 * Récupérer les coordonnées d'un vertex 

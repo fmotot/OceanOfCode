@@ -43,8 +43,8 @@ public class Launcher {
 	public static int oppLife = 6;
 	public static int myLife = 6;
 	public static int torpedoCooldown = 3;
-	public static int sonarCooldown = 3;
-	public static int silenceCooldown = 3;
+	public static int sonarCooldown = 4;
+	public static int silenceCooldown = 6;
 	public static int mineCooldown = 3;
 	public static String sonarResult = "";
 	
@@ -109,11 +109,11 @@ public class Launcher {
 			"MOVE E",
 			"MOVE S",
 			"SILENCE S 0",
-//			"MOVE E",
-//			"MOVE E",
-//			"MOVE S",
-//			"MOVE S",
-//			"MOVE S",
+			"MOVE E",
+			"MOVE E",
+			"MOVE S",
+			"MOVE S",
+			"MOVE S",
 //			"MOVE S",
 //			"MOVE S",
 //			"MOVE W",
@@ -191,6 +191,8 @@ public class Launcher {
 			System.err.println("pos adv : " + getCoordOpp(opponentOrders[i]));
 			System.err.println("actions de l'adversaire : " + opponentOrders[i]);
 			System.err.println("mes actions : " + actions);
+			System.err.println("TORPEDO Cooldown : " + torpedoCooldown);
+			System.err.println("SILENCE Cooldown : " + silenceCooldown);
 			actions = suby.nextAction(x, y, myLife, oppLife, torpedoCooldown, sonarCooldown, silenceCooldown, mineCooldown, sonarResult, opponentOrders[i]);
 			
 			
@@ -256,12 +258,33 @@ public class Launcher {
 			switch (action[0]) {
 			case "MOVE":
 				setPositionFromMove(action[1]);
+				
+				// POWER
+				switch (action[2]) {
+				case "TORPEDO":
+					if (torpedoCooldown > 0) {
+						torpedoCooldown--;
+					}
+					break;
+				case "SILENCE" :
+					if(silenceCooldown > 0)
+						silenceCooldown--;
+					break;
+
+				default:
+					break;
+				}
+				
+				
 				break;
 			case "TORPEDO":
 				torpedoCooldown = 3;
 				break;
 			case "SURFACE":
 				
+				break;
+			case "SILENCE":
+				silenceCooldown = 6;
 				break;
 			default:
 				break;
@@ -270,10 +293,6 @@ public class Launcher {
 		// TODO myLife ? oppLife ?
 		
 		
-		// torpedoCoolDown commence à 3, -1 par tour jusqu'à 0 où il reste tant que pas torpedo
-		if (torpedoCooldown > 0) {
-			torpedoCooldown--;
-		}
 		
 		
 	}
