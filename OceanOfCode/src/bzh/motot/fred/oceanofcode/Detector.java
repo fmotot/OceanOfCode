@@ -97,67 +97,7 @@ public class Detector {
 	}
 
 	private void setPositionFromSilence() {
-		// prendre en compte les iles éventuelles
-
-//		List<int[]> positions = new ArrayList<int[]>();
-//		int[] coord = new int[2];
-//
-//		boolean nextTestOK = true;
-//		for (int[] direction : map.DIRECTIONS) {
-//			nextTestOK = true;
-//			for (int i = 1; i <= 4; i++) {
-//				if (nextTestOK) {
-//					for (ArrayList<int[]> mov : enemyMovements) {
-//						for (int index = mov.size() - 1; index >= 0; index--) {
-//							coord[0] += mov.get(index)[0];
-//							coord[1] += mov.get(index)[1];
-//							int[] dir = arrayMultiply(direction, i);
-//							try {
-//								if (Arrays.equals(coord, dir)) {
-//									positions.add(dir);
-//									nextTestOK = false;
-//									break;
-//								}
-//							} catch (ArrayIndexOutOfBoundsException e) {
-////								System.err.println("Sortie de la map lors test positions/silence");
-////								System.err.println(e.getMessage());
-//							}
-//						}
-//						coord[0] = 0;
-//						coord[1] = 0;
-//					}
-//				}
-//			}
-//		}
-//		System.err.println("==========================================================================");
-//		System.err.println("==========================================================================");
-//		System.err.println("==========================================================================");
-//		System.err.println("==========================================================================");
-//		System.err.println("==========================================================================");
-//		System.err.println("          Silence,  L'ennemi n'a pas pris les directions : ");
-//
-//		for (int[] direction : positions) {
-//			System.err.println(direction[0] + " " + direction[1]);
-//			int x = direction[0] / (direction[0] == 0 ? 1 : Math.abs(direction[0]));
-//			int y = direction[1] / (direction[1] == 0 ? 1 : Math.abs(direction[1]));
-//			switch (x) {
-//			case -1:
-//				System.err.println("west");
-//				break;
-//			case 1:
-//				System.err.println("east");
-//				break;
-//			}
-//			switch (y) {
-//			case -1:
-//				System.err.println("north");
-//				break;
-//			case 1:
-//				System.err.println("south");
-//				break;
-//			}
-//
-//		}
+		
 
 		// TODO après un appel à listPossibleMovesFromPreviousOnes() empêcher le test
 		// d'une position plus loin dans la même direction si la position testée n'est
